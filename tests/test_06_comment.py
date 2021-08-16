@@ -133,7 +133,7 @@ class Test06CommentAPI:
         pre_url = f'/api/v1/titles/{titles[0]["id"]}/reviews/{reviews[0]["id"]}/comments/'
         response = client.get(f'{pre_url}{comments[0]["id"]}/')
         assert response.status_code != 404, (
-            'Страница `/api/v1/titles/{title_id}/reviews/{review_id}/{review_id}/comments/{comment_id}/` '
+            'Страница `/api/v1/titles/{title_id}/reviews/{review_id}/comments/{comment_id}/` '
             'не найдена, проверьте этот адрес в *urls.py*'
         )
         assert response.status_code == 200, (
