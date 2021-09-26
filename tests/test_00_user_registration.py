@@ -1,5 +1,6 @@
 import pytest
 from django.contrib.auth import get_user_model
+from django.core import mail
 
 User = get_user_model()
 
@@ -7,6 +8,7 @@ User = get_user_model()
 class Test00UserRegistration:
     url_signup = '/api/v1/auth/signup/'
     url_token = '/api/v1/auth/token/'
+    url_admin_create_user = '/api/v1/users/'
 
     @pytest.mark.django_db(transaction=True)
     def test_00_nodata_signup(self, client):
@@ -71,10 +73,11 @@ class Test00UserRegistration:
         )
 
     @pytest.mark.django_db(transaction=True)
-    def test_00_valid_data_signup(self, client):
+    def test_00_valid_data_user_signup(self, client):
 
         valid_email = 'valid@yamdb.fake'
         valid_username = 'valid_username'
+        outbox_before_count = len(mail.outbox)
 
         valid_data = {
             'email': valid_email,
@@ -82,6 +85,7 @@ class Test00UserRegistration:
         }
         request_type = 'POST'
         response = client.post(self.url_signup, data=valid_data)
+        outbox_after = mail.outbox  # email outbox after user create
 
         assert response.status_code != 404, (
             f'Страница `{self.url_signup}` не найдена, проверьте этот адрес в *urls.py*'
@@ -102,6 +106,62 @@ class Test00UserRegistration:
             f'Проверьте, что при {request_type} запросе `{self.url_signup}` с валидными данными '
             f'создается пользователь и возвращается статус {code}'
         )
+
+        # Test confirmation code
+        assert len(outbox_after) == outbox_before_count + 1, (
+            f'Проверьте, что при {request_type} запросе `{self.url_signup}` с валидными данными, '
+            f'пользователю приходит email с кодом подтверждения'
+        )
+        assert valid_email in outbox_after[0].to, (
+            f'Проверьте, что при {request_type} запросе `{self.url_signup}` с валидными данными, '
+            f'пользователю приходит письмо с кодом подтверждения на email, который он указал при регистрации'
+        )
+
+        new_user.delete()
+
+    @pytest.mark.django_db(transaction=True)
+    def test_00_valid_data_admin_create_user(self, admin_client):
+
+        valid_email = 'valid@yamdb.fake'
+        valid_username = 'valid_username'
+        outbox_before_count = len(mail.outbox)
+
+        valid_data = {
+            'email': valid_email,
+            'username': valid_username
+        }
+        request_type = 'POST'
+        response = admin_client.post(self.url_admin_create_user, data=valid_data)
+        outbox_after = mail.outbox
+
+        assert response.status_code != 404, (
+            f'Страница `{self.url_admin_create_user}` не найдена, проверьте этот адрес в *urls.py*'
+        )
+
+        code = 201
+        assert response.status_code == code, (
+            f'Проверьте, что при {request_type} запросе `{self.url_admin_create_user}` с валидными данными '
+            f'от имени администратора, создается пользователь и возвращается статус {code}'
+        )
+        response_json = response.json()
+        for field in valid_data:
+            assert field in response_json and valid_data.get(field) == response_json.get(field), (
+                f'Проверьте, что при {request_type} запросе `{self.url_admin_create_user}` с валидными данными '
+                f'от имени администратора, в ответ приходит созданный объект пользователя в виде словаря'
+            )
+
+        new_user = User.objects.filter(email=valid_email)
+        assert new_user.exists(), (
+            f'Проверьте, что при {request_type} запросе `{self.url_admin_create_user}` с валидными данными '
+            f'от имени администратора, в БД создается пользователь и возвращается статус {code}'
+        )
+
+        # Test confirmation code not sent to user after admin registers him
+        assert len(outbox_after) == outbox_before_count, (
+            f'Проверьте, что при {request_type} запросе `{self.url_admin_create_user}` с валидными данными '
+            f'от имени администратора, пользователю НЕ приходит email с кодом подтверждения'
+        )
+
         new_user.delete()
 
     @pytest.mark.django_db(transaction=True)
