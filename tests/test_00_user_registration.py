@@ -205,7 +205,8 @@ class Test00UserRegistration:
             'username': valid_username_2
         }
         response = client.post(self.url_signup, data=duplicate_email_data)
-        assert response.status_code == 400, (
+        code = 400
+        assert response.status_code == code, (
             f'Проверьте, что при {request_type} запросе `{self.url_signup}` нельзя создать '
             f'пользователя, email которого уже зарегистрирован и возвращается статус {code}'
         )
@@ -214,7 +215,7 @@ class Test00UserRegistration:
             'username': valid_username_1
         }
         response = client.post(self.url_signup, data=duplicate_username_data)
-        assert response.status_code == 400, (
+        assert response.status_code == code, (
             f'Проверьте, что при {request_type} запросе `{self.url_signup}` нельзя создать '
             f'пользователя, username которого уже зарегистрирован и возвращается статус {code}'
         )
