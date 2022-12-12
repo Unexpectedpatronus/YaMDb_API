@@ -92,7 +92,9 @@ class Test00UserRegistration:
         users_count = django_user_model.objects.count()
         response = client.post(self.url_signup, data=data)
         assert response.status_code == HTTPStatus.BAD_REQUEST, (
-            messege.format(url=self.url_signup, request_method=request_method)
+            messege[0].format(
+                url=self.url_signup, request_method=request_method
+            )
         )
         assert django_user_model.objects.count() == users_count, (
             f'Если в POST-запросе к эндпоинту `{self.url_signup}` '
@@ -205,7 +207,7 @@ class Test00UserRegistration:
         users_count = django_user_model.objects.count()
         response = admin_client.post(self.url_admin_create_user, data=data)
         assert response.status_code == HTTPStatus.BAD_REQUEST, (
-            messege.format(
+            messege[0].format(
                 url=self.url_admin_create_user, request_method=request_method
             )
         )

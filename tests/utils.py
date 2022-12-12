@@ -7,33 +7,33 @@ check_name_and_slug_patterns = (
             'name': 'a' * 256 + 'simbols',
             'slug': 'longname'
         },
-        (
+        ((
             'Проверьте, что при обработке POST-запроса к `{url}` проверяется '
             'длина поля `name`: название произведения не '
             'должно быть длиннее 256 символов.'
-        )
+        ),)
     ),
     (
         {
             'name': 'longslug',
             'slug': 'l' * 50 + 'simbols'
         },
-        (
+        ((
             'Проверьте, что при обработке POST-запроса к `{url}` проверяется '
             'длина поля `slug`: его содержимое не должно быть длиннее 50 '
             'символов.'
-        )
+        ),)
     ),
     (
         {
             'name': 'brokenslug',
             'slug': ':-)'
         },
-        (
+        ((
             'Проверьте, что при обработке POST-запроса к `{url}` содержание '
             'поля `slug` проверяется на соответствие паттерну, указанному в '
             'спецификации: ^[-a-zA-Z0-9_]+$'
-        ),
+        ),)
     )
 )
 invalid_data_for_username_and_email_fields = [
@@ -42,33 +42,33 @@ invalid_data_for_username_and_email_fields = [
             'email': ('a' * 244) + '@yamdb.fake',
             'username': 'valid-username'
         },
-        (
+        ((
             'Проверьте, что при обработке {request_method}-запроса к `{url}` '
             'проверяется длина поля `email`: его содержимое не должно быть '
             'длиннее 254 символа.'
-        )
+        ),)
     ),
     (
         {
             'email': 'valid-email@yamdb.fake',
             'username': ('a' * 151)
         },
-        (
+        ((
             'Проверьте, что при обработке {request_method}-запроса к `{url}` '
             'проверяется длина поля `username`: его содержимое не должно быть '
             'длиннее 150 символов.'
-        )
+        ),)
     ),
     (
         {
             'email': 'valid-email@yamdb.fake',
             'username': '|-|aTa|_|_|a'
         },
-        (
+        ((
             'Проверьте, что при обработке {request_method}-запроса к `{url}` '
             'содержание поля `username` проверяется на соответствие '
             'паттерну, указанному в спецификации: ^[\\w.@+-]+\\z'
-        )
+        ),)
     )
 ]
 invalid_data_for_user_patch_and_creation = (
@@ -81,11 +81,11 @@ invalid_data_for_user_patch_and_creation.extend([
             'username': 'validname',
             'first_name': 'toolong' + 'g' * 144
         },
-        (
+        ((
             'Проверьте, что при обработке POST-запроса к `{url}` '
             'проверяется длина поля `first_name`: его содержимое не должно '
             'быть длиннее 150 символов.'
-        )
+        ),)
     ),
     (
         {
@@ -93,11 +93,11 @@ invalid_data_for_user_patch_and_creation.extend([
             'username': 'validname',
             'last_name': 'toolong' + 'g' * 144
         },
-        (
+        ((
             'Проверьте, что при обработке POST-запроса к `{url}` '
             'проверяется длина поля `last_name`: его содержимое не должно '
             'быть длиннее 150 символов.'
-        )
+        ),)
     )
 ])
 

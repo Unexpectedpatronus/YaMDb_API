@@ -78,7 +78,7 @@ class Test03GenreAPI:
         url = '/api/v1/genres/'
         response = admin_client.post(url, data=data)
         assert response.status_code == HTTPStatus.BAD_REQUEST, (
-            massage.format(url=url)
+            massage[0].format(url=url)
         )
 
     def test_04_genres_delete(self, admin_client):

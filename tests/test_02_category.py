@@ -88,7 +88,7 @@ class Test02CategoryAPI:
         url = '/api/v1/categories/'
         response = admin_client.post(url, data=data)
         assert response.status_code == HTTPStatus.BAD_REQUEST, (
-            massage.format(url=url)
+            massage[0].format(url=url)
         )
 
     def test_04_category_delete_admin(self, admin_client):

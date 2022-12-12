@@ -524,7 +524,7 @@ class Test01UserAPI:
         request_method = 'PATCH'
         response = user_client.patch(url, data=data)
         assert response.status_code == HTTPStatus.BAD_REQUEST, (
-            messege.format(url=url, request_method=request_method)
+            messege[0].format(url=url, request_method=request_method)
         )
 
     def test_10_03_users_me_patch_change_role_not_allowed(self,
