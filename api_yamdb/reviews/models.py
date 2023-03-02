@@ -9,6 +9,7 @@ ROLE_CHOICES = (
     ('admin', 'Администратор'),
 )
 
+
 class Category(models.Model):
     name = models.CharField(
         'Название категории',
