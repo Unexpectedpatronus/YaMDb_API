@@ -48,7 +48,7 @@ def token(request):
 
 def send_confirmation_code(user):
     confirmation_code = default_token_generator.make_token(user)
-    subject = 'Код подтверждения YaMDb'
+    subject = 'Confirmation code YaMDb'
     message = f'{confirmation_code} - ваш код для авторизации на YaMDb'
     admin_email = settings.ADMIN_EMAIL
     user_email = [user.email]
