@@ -13,7 +13,13 @@ from rest_framework import filters, mixins, permissions, viewsets
 from reviews.models import Category, Genre, GenreTitle, Title, User
 
 from .serializers import (CategorySerializer, GenreSerializer, TitleSerializer,
-                          SignupSerializer, TokenSerializer)
+                          SignupSerializer, TokenSerializer, UserSerializer)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    lookup_field = 'username'
 
 
 @api_view(['POST'])

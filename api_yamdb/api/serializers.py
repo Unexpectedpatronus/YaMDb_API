@@ -2,7 +2,15 @@ import datetime as dt
 
 from rest_framework import serializers
 
-from reviews.models import Category, Genre, GenreTitle, Title, User
+from reviews.models import Category, Genre, GenreTitle, Title, User, ROLE_CHOICES
+
+
+class UserSerializer(serializers.ModelSerializer):
+    role = serializers.ChoiceField(choices=ROLE_CHOICES)
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role')
 
 
 class GenreSerializer(serializers.ModelSerializer):
