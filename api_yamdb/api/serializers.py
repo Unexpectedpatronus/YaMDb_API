@@ -49,8 +49,8 @@ class SignupSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'email')
 
-    def valid_username(self, value):
-        if value == 'me':
+    def validate_username(self, value):
+        if value.lower() == 'me':
             raise serializers.ValidationError(
                 'Имя пользователя "me" не разрешено.'
             )
