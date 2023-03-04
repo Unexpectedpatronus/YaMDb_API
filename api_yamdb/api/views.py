@@ -1,19 +1,18 @@
+from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from django.conf import settings
-
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes, action
+from rest_framework import filters, mixins, permissions, status, viewsets
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import filters, mixins, permissions, viewsets
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Category, Genre, GenreTitle, Title, User
 
-from .serializers import (CategorySerializer, GenreSerializer, TitleSerializer,
-                          SignupSerializer, TokenSerializer, UserSerializer)
+from .serializers import (CategorySerializer, GenreSerializer,
+                          SignupSerializer, TitleSerializer, TokenSerializer,
+                          UserSerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
