@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
@@ -6,19 +7,39 @@ from rest_framework import filters, mixins, permissions, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework import filters, mixins, permissions, status, viewsets
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import filters, mixins, permissions, viewsets
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Category, Genre, GenreTitle, Title, Review, Comment
 
-from .serializers import (CategorySerializer, GenreSerializer, TitleSerializer,
-                          SignupSerializer, TokenSerializer, ReviewSerializer,
-                          CommentSerializer)
-from .permissions import IsAuthorModAdminOrReadOnlyPermission
+from .serializers import (CategorySerializer, GenreSerializer,
+                          SignupSerializer, TitleSerializer, TokenSerializer,
+                          UserSerializer)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    lookup_field = 'username'
+
+    @action(
+        detail=False, methods=['get', 'patch'],
+        url_path='me', url_name='me',
+        permission_classes=(IsAuthenticated,)
+    )
+    def about_me(self, request):
+        serializer = UserSerializer(request.user)
+        if request.method == 'PATCH':
+            serializer = UserSerializer(
+                request.user, data=request.data, partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])

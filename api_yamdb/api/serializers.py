@@ -4,6 +4,8 @@ from rest_framework import serializers
 
 from reviews.models import (ROLE_CHOICES, Category, Genre, GenreTitle, Title,
                             User)
+from reviews.models import (ROLE_CHOICES, Category, Genre, GenreTitle, Title,
+                            User)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -14,8 +16,6 @@ class UserSerializer(serializers.ModelSerializer):
         fields = (
             'username', 'email', 'first_name', 'last_name', 'bio', 'role'
         )
-from reviews.models import (Category, Genre, GenreTitle, Title, User, Review,
-                            Comment)
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -38,6 +38,9 @@ class TitleSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'year', 'description', 'genre', 'category'
         )  # 'rating',
+        fields = (
+            'id', 'name', 'year', 'description', 'genre', 'category'
+        )  # 'rating',
 
     def create(self, validated_data):
         if 'genre' not in self.initial_data:
@@ -55,6 +58,9 @@ class TitleSerializer(serializers.ModelSerializer):
 
     def validate_year(self, value):
         if value > dt.date.today().year:
+            raise serializers.ValidationError(
+                'Год выпуска не может быть больше текущего!'
+            )
             raise serializers.ValidationError(
                 'Год выпуска не может быть больше текущего!'
             )
@@ -81,20 +87,3 @@ class TokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'confirmation_code')
-
-
-class ReviewSerializer(serializers.ModelSerializer):
-    text = serializers.CharField(required=True)
-    score = serializers.IntegerField(required=True)
-
-    class Meta:
-        model = Review
-        fields = ('id', 'text', 'author', 'score', 'pub_date')
-
-
-class CommentSerializer(serializers.ModelSerializer):
-    text = serializers.CharField(required=True)
-
-    class Meta:
-        model = Comment
-        fields = ('id', 'text', 'author', 'pub_date')
