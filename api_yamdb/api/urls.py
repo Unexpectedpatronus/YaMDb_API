@@ -10,7 +10,7 @@ v1.register('genres', GenreViewSet, basename='genres')
 v1.register('categories', CategoryViewSet, basename='categories')
 v1.register('titles', TitleViewSet, basename='titles')
 # v1.register(r'posts/(?P<post_id>\d+)/comments',
-#                 CommentViewSet, basename='comments')
+#                 ReviewViewSet, basename='reviews')
 # v1.register(r'posts/(?P<post_id>\d+)/comments',
 #                 CommentViewSet, basename='comments')
 
