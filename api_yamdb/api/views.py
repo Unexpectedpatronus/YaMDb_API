@@ -7,34 +7,18 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework import filters, mixins, permissions, viewsets
 
-from reviews.models import Category, Genre, GenreTitle, Title, User
+from reviews.models import Category, Genre, GenreTitle, Title, Review, Comment
 
-from .serializers import (CategorySerializer, GenreSerializer,
-                          SignupSerializer, TitleSerializer, TokenSerializer,
-                          UserSerializer)
-
-
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    lookup_field = 'username'
-
-    @action(
-        detail=False, methods=['get', 'patch'],
-        url_path='me', url_name='me',
-        permission_classes=(IsAuthenticated,)
-    )
-    def about_me(self, request):
-        serializer = UserSerializer(request.user)
-        if request.method == 'PATCH':
-            serializer = UserSerializer(
-                request.user, data=request.data, partial=True
-            )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+from .serializers import (CategorySerializer, GenreSerializer, TitleSerializer,
+                          SignupSerializer, TokenSerializer, ReviewSerializer,
+                          CommentSerializer)
+from .permissions import IsAuthorModAdminOrReadOnlyPermission
 
 
 @api_view(['POST'])
@@ -92,3 +76,25 @@ class TitleViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     permission_classes = (permissions.AllowAny,)
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = (IsAuthorModAdminOrReadOnlyPermission,)
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = (IsAuthorModAdminOrReadOnlyPermission,)
+
+    def get_queryset(self):
+        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        return review.comments
+
+    def perform_create(self, serializer):
+        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        serializer.save(author=self.request.user, review=review)

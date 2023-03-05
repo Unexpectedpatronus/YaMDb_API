@@ -14,6 +14,8 @@ class UserSerializer(serializers.ModelSerializer):
         fields = (
             'username', 'email', 'first_name', 'last_name', 'bio', 'role'
         )
+from reviews.models import (Category, Genre, GenreTitle, Title, User, Review,
+                            Comment)
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -79,3 +81,20 @@ class TokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'confirmation_code')
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    text = serializers.CharField(required=True)
+    score = serializers.IntegerField(required=True)
+
+    class Meta:
+        model = Review
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    text = serializers.CharField(required=True)
+
+    class Meta:
+        model = Comment
+        fields = ('id', 'text', 'author', 'pub_date')
