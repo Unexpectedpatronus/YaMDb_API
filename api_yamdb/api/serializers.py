@@ -1,7 +1,6 @@
 import datetime as dt
 from django.db.models import Avg
 
-from rest_framework.validators import UniqueTogetherValidator
 from rest_framework import serializers
 
 from reviews.models import (ROLE_CHOICES, Category, Genre, GenreTitle, Title,
@@ -16,21 +15,18 @@ class UserSerializer(serializers.ModelSerializer):
         fields = (
             'username', 'email', 'first_name', 'last_name', 'bio', 'role'
         )
-        lookup_field = 'username'
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
         fields = ('name', 'slug')
-        lookup_field = 'slug'
 
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ('name', 'slug')
-        lookup_field = 'slug'
 
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -48,7 +44,6 @@ class TitleSerializer(serializers.ModelSerializer):
     def get_rating(self, obj):
         result = Title.objects.aggregate(rating=Avg('reviews__score'))
         return result['rating']
- 
 
     def create(self, validated_data):
         if 'genre' not in self.initial_data:
@@ -95,23 +90,17 @@ class TokenSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    text = serializers.CharField(required=True)
-    score = serializers.IntegerField(required=True)
-    author = serializers.SlugRelatedField(
-        slug_field='username', read_only=True
-    )
+     text = serializers.CharField(required=True)
+     score = serializers.IntegerField(required=True)
 
-    class Meta:
-        model = Review
-        fields = ('id', 'text', 'author', 'score', 'pub_date')
+     class Meta:
+         model = Review
+         fields = ('id', 'text', 'author', 'score', 'pub_date')
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    text = serializers.CharField(required=True)
-    author = serializers.SlugRelatedField(
-        slug_field='username', read_only=True
-    )
+     text = serializers.CharField(required=True)
 
-    class Meta:
-        model = Comment
-        fields = ('id', 'text', 'author', 'pub_date')
+     class Meta:
+         model = Comment
+         fields = ('id', 'text', 'author', 'pub_date')
