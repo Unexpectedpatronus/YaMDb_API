@@ -1,6 +1,7 @@
 import datetime as dt
 from django.db.models import Avg
 
+from rest_framework.validators import UniqueTogetherValidator
 from rest_framework import serializers
 
 from reviews.models import (ROLE_CHOICES, Category, Genre, GenreTitle, Title,
@@ -21,12 +22,14 @@ class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
         fields = ('name', 'slug')
+        lookup_field = 'slug'
 
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ('name', 'slug')
+        lookup_field = 'slug'
 
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -90,17 +93,23 @@ class TokenSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-     text = serializers.CharField(required=True)
-     score = serializers.IntegerField(required=True)
+    text = serializers.CharField(required=True)
+    score = serializers.IntegerField(required=True)
 
-     class Meta:
-         model = Review
-         fields = ('id', 'text', 'author', 'score', 'pub_date')
+    class Meta:
+        model = Review
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Review.objects.all(),
+                fields=('author', 'title')
+            )
+        ]
 
 
 class CommentSerializer(serializers.ModelSerializer):
-     text = serializers.CharField(required=True)
+    text = serializers.CharField(required=True)
 
-     class Meta:
-         model = Comment
-         fields = ('id', 'text', 'author', 'pub_date')
+    class Meta:
+        model = Comment
+        fields = ('id', 'text', 'author', 'pub_date')
