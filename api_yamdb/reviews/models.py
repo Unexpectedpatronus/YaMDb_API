@@ -62,16 +62,16 @@ class Title(models.Model):
     )
     genre = models.ManyToManyField(
         Genre,
-        verbose_name='`Жанр',
+        verbose_name='Жанр',
         through='GenreTitle',
-        related_name='genre',
+        related_name='titles',
+        null=True
     )
     category = models.ForeignKey(
         Category,
-        related_name='category',
+        related_name='titles',
         on_delete=models.SET_NULL,
         verbose_name='Категория',
-        blank=True,
         null=True
     )
 
@@ -87,11 +87,13 @@ class Title(models.Model):
 class GenreTitle(models.Model):
     genre = models.ForeignKey(
         Genre,
-        on_delete=models.DO_NOTHING,
+        on_delete=models.SET_NULL,
+        null=True,
     )
     title = models.ForeignKey(
         Title,
-        on_delete=models.DO_NOTHING,
+        on_delete=models.SET_NULL,
+        null=True,
     )
 
     class Meta:
@@ -149,7 +151,6 @@ class Review(models.Model):
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
-        # db_index=True,
         verbose_name='Дата публикации'
     )
 
@@ -157,7 +158,7 @@ class Review(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['author', 'title'],
-                name='unique review')
+                name='unique_author_title')
         ]
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
@@ -182,7 +183,6 @@ class Comment(models.Model):
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
-        # db_index=True,
         verbose_name='Дата публикации'
     )
 
