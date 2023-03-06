@@ -32,6 +32,8 @@ class CategorySerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(many=True, required=True)
     rating = serializers.SerializerMethodField()
+    category = CategorySerializer()
+    description = serializers.CharField(required=False)
 
     class Meta:
         model = Title
@@ -43,6 +45,7 @@ class TitleSerializer(serializers.ModelSerializer):
         result = Title.objects.aggregate(rating=Avg('reviews__score'))
         return result['rating']
  
+
     def create(self, validated_data):
         if 'genre' not in self.initial_data:
             title = Title.objects.create(**validated_data)
