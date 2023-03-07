@@ -1,11 +1,11 @@
 import datetime as dt
+
 from django.db.models import Avg
-
-from rest_framework.validators import UniqueTogetherValidator
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
-from reviews.models import (ROLE_CHOICES, Category, Genre, GenreTitle, Title,
-                            User, Review, Comment)
+from reviews.models import (ROLE_CHOICES, Category, Comment, Genre, GenreTitle,
+                            Review, Title, User)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -33,7 +33,7 @@ class CategorySerializer(serializers.ModelSerializer):
         lookup_field = 'slug'
 
 
-class TitleSerializer(serializers.ModelSerializer):
+class TitleListSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(many=True, required=True)
     rating = serializers.SerializerMethodField()
     category = CategorySerializer()
@@ -49,19 +49,25 @@ class TitleSerializer(serializers.ModelSerializer):
         result = Title.objects.aggregate(rating=Avg('reviews__score'))
         return result['rating']
 
-    def create(self, validated_data):
-        if 'genre' not in self.initial_data:
-            title = Title.objects.create(**validated_data)
-            return title
 
-        genre = validated_data.pop('genre')
-        title = Title.objects.create(**validated_data)
-        for element in genre:
-            current_genre, status = Genre.objects.get_or_create(
-                **element)
-            GenreTitle.objects.create(
-                genre=current_genre, title=title)
-        return title
+class TitlePostSerializer(serializers.ModelSerializer):
+    genre = serializers.SlugRelatedField(
+        queryset=Genre.objects.all(),
+        slug_field='slug', many=True,
+    )
+    category = serializers.SlugRelatedField(
+        queryset=Category.objects.all(),
+        slug_field='slug',
+    )
+    description = serializers.CharField(
+        required=False
+    )
+
+    class Meta:
+        model = Title
+        fields = (
+            'name', 'year', 'description', 'genre', 'category'
+        )
 
     def validate_year(self, value):
         if value > dt.date.today().year:

@@ -1,6 +1,7 @@
 import csv
 
-from reviews.models import Category, Genre, GenreTitle, Title, User, Review
+from reviews.models import (Category, Comment, Genre, GenreTitle, Review,
+                            Title, User)
 
 
 def run():
@@ -12,6 +13,9 @@ def run():
         Category.objects.all().delete()
         Genre.objects.all().delete()
         User.objects.all().delete()
+        GenreTitle.objects.all().delete()
+        Review.objects.all().delete()
+        Comment.objects.all().delete()
 
         for row in reader:
             print(row)
@@ -106,3 +110,22 @@ def run():
                 pub_date=row[5]
             )
             review.save()
+
+    with open('static/data/comments.csv', encoding='utf-8') as file:
+        reader = csv.reader(file)
+        next(reader)
+
+        for row in reader:
+            print(row)
+
+            author, _ = User.objects.get_or_create(id=row[3])
+            review, _ = Review.objects.get_or_create(id=row[1])
+
+            comment = Comment(
+                id=row[0],
+                review=review,
+                text=row[2],
+                author=author,
+                pub_date=row[4],
+            )
+            comment.save()
