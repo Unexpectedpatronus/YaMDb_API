@@ -18,6 +18,13 @@ class UserSerializer(serializers.ModelSerializer):
         )
         lookup_field = 'username'
 
+    def validate_username(self, value):
+        if value.lower() == 'me':
+            raise serializers.ValidationError(
+                'Имя пользователя "me" не разрешено.'
+            )
+        return value
+
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
