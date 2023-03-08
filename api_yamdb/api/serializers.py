@@ -9,7 +9,8 @@ from reviews.models import (ROLE_CHOICES, Category, Comment, Genre, GenreTitle,
 
 
 class UserSerializer(serializers.ModelSerializer):
-    role = serializers.ChoiceField(choices=ROLE_CHOICES)
+    email = serializers.EmailField(max_length=254)
+    role = serializers.ChoiceField(choices=ROLE_CHOICES, required=False)
 
     class Meta:
         model = User

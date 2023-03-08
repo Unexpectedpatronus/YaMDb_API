@@ -104,6 +104,7 @@ class GenreTitle(models.Model):
 
 class User(AbstractUser):
     email = models.EmailField(
+        max_length=254,
         unique=True,
         verbose_name='Адрес электронной почты'
     )
