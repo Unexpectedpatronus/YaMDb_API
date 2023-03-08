@@ -110,9 +110,9 @@ class TitleViewSet(viewsets.ModelViewSet):
     permission_classes = (IsRoleAdmin | ReadOnly,)
 
     def get_serializer_class(self):
-        if self.action == 'list':
-            return TitleListSerializer
-        return TitlePostSerializer
+        if self.request.method in ('POST', 'PATCH',):
+            return TitlePostSerializer
+        return TitleListSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
