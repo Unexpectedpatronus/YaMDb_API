@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db.models import Avg
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
@@ -13,9 +14,10 @@ from reviews.models import (Category, Comment, Genre, GenreTitle, Review,
 
 from .permissions import (IsAdmin, IsModerator,
                           IsAdminOrReadOnly, IsAuthorOrReadOnly)
-from .serializers import (CategorySerializer, GenreSerializer,
-                          SignupSerializer, TitleSerializer, TokenSerializer,
-                          UserSerializer, ReviewSerializer, CommentSerializer)
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, ReviewSerializer, SignupSerializer,
+                          TitleListSerializer, TitlePostSerializer,
+                          TokenSerializer, UserSerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -95,11 +97,16 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = (
+        Title.objects.all()
+        .annotate(rating=Avg('reviews__score'))
+        .order_by('-id')
+    )
+
     permission_classes = (IsAdminOrReadOnly,)
 
     def get_serializer_class(self):
-        if self.action == 'list':
+        if self.request.method == 'GET':
             return TitleListSerializer
         return TitlePostSerializer
 

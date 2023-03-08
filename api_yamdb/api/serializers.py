@@ -1,6 +1,5 @@
 import datetime as dt
 
-from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
@@ -43,7 +42,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class TitleListSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(many=True, required=True)
-    rating = serializers.SerializerMethodField()
+    rating = serializers.IntegerField()
     category = CategorySerializer()
     description = serializers.CharField(required=False)
 
@@ -52,10 +51,6 @@ class TitleListSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
         )
-
-    def get_rating(self, obj):
-        result = Title.objects.aggregate(rating=Avg('reviews__score'))
-        return result['rating']
 
 
 class TitlePostSerializer(serializers.ModelSerializer):
@@ -111,12 +106,21 @@ class ReviewSerializer(serializers.ModelSerializer):
     text = serializers.CharField(required=True)
     score = serializers.IntegerField(required=True)
     author = serializers.SlugRelatedField(
-        slug_field='username', read_only=True
+        slug_field='username', read_only=True,
+        default=serializers.CurrentUserDefault()
     )
+    title = serializers.HiddenField(default=Title.objects.all())
 
     class Meta:
         model = Review
-        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        fields = ('id', 'text', 'author', 'score', 'pub_date', 'title')
+        validators = [
+           UniqueTogetherValidator(
+           Review.objects.all(),
+           fields=['title', 'author'],
+           message='Отзыв уже оставлен'
+           )
+        ]
 
 
 class CommentSerializer(serializers.ModelSerializer):
