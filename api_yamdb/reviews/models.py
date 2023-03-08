@@ -2,11 +2,71 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-ROLE_CHOICES = (
-    ('user', 'Пользователь'),
-    ('moderator', 'Модератор'),
-    ('admin', 'Администратор'),
-)
+from .validators import UsernameRegexValidator
+
+
+class User(AbstractUser):
+    roles = (
+        ('admin', 'Администратор'),
+        ('moderator', 'Модератор'),
+        ('user', 'Пользователь'),
+    )
+    username_validator = UsernameRegexValidator()
+    username = models.CharField(
+        verbose_name='Никнейм',
+        max_length=150,
+        null=False,
+        unique=True,
+        validators=[username_validator],
+    )
+    first_name = models.CharField(
+        verbose_name='Имя',
+        max_length=150,
+        default=''
+    )
+    last_name = models.CharField(
+        verbose_name='Фамилия',
+        max_length=150,
+        default=''
+    )
+    email = models.EmailField(
+        verbose_name='Адрес электронной почты',
+        max_length=254,
+        unique=True,
+        blank=False,
+        null=False,
+    )
+    role = models.CharField(
+        verbose_name='Роль',
+        max_length=25,
+        default='user',
+        choices=roles
+    )
+    bio = models.TextField(
+        verbose_name='О себе',
+        max_length=250,
+        blank=True,
+        default='Укажите краткое описание'
+    )
+
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
+    @property
+    def is_admin(self):
+        return self.role == 'admin'
+
+    @property
+    def is_moderator(self):
+        return self.role == 'moderator'
+
+    @property
+    def is_user(self):
+        return self.role == 'user'
+
+    def __str__(self):
+        return self.username
 
 
 class Category(models.Model):
@@ -100,31 +160,6 @@ class GenreTitle(models.Model):
 
     def __str__(self):
         return f'{self.title} {self.genre}'
-
-
-class User(AbstractUser):
-    email = models.EmailField(
-        max_length=254,
-        unique=True,
-        verbose_name='Адрес электронной почты'
-    )
-    role = models.CharField(
-        max_length=255,
-        choices=ROLE_CHOICES,
-        default='user',
-        verbose_name='Роль'
-    )
-    bio = models.TextField(
-        blank=True,
-        verbose_name='Биография'
-    )
-
-    class Meta:
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
-
-    def __str__(self):
-        return self.username
 
 
 class Review(models.Model):
