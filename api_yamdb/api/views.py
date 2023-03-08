@@ -1,20 +1,26 @@
+from django.db.models import Avg
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
-from django.db.models import Avg
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework import filters
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from reviews.models import Category, Comment, Genre, Review, Title, User
 
+from reviews.models import (Category, Comment, Genre, GenreTitle, Review,
+                            Title, User)
+
+from .filters import TitleFilter
 from .permissions import (IsAuthorOrReadOnly, IsRoleAdmin, IsRoleModerator,
                           ReadOnly)
-from .serializers import (AuthentificationSerializer, CategorySerializer,
-                          CommentSerializer, GenreSerializer, ReviewSerializer,
-                          TitleListSerializer, TitlePostSerializer,
-                          TokenSerializer, UserSerializer)
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, ReviewSerializer,
+                          AuthentificationSerializer, TitleListSerializer,
+                          TitlePostSerializer, UserSerializer,
+                          TokenSerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -109,11 +115,13 @@ class TitleViewSet(viewsets.ModelViewSet):
         Title.objects.annotate(rating=Avg('reviews__score')).order_by('-id')
     )
     permission_classes = (IsRoleAdmin | ReadOnly,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return TitleListSerializer
-        return TitlePostSerializer
+        if self.request.method in ('POST', 'PATCH',):
+            return TitlePostSerializer
+        return TitleListSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
