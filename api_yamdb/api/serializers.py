@@ -3,6 +3,7 @@ import datetime as dt
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueTogetherValidator
+
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
@@ -19,12 +20,12 @@ class UserSerializer(serializers.ModelSerializer):
     def validate_username(self, username):
         if username == 'me':
             raise serializers.ValidationError('Имя me не допустимо')
-        elif username is None or username == "":
+        if not username:
             raise serializers.ValidationError('Заполните поле имя')
         return username
 
     def validate_email(self, email):
-        if email is None or email == "":
+        if not email:
             raise serializers.ValidationError('Заполните поле email')
         return email
 

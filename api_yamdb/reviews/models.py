@@ -1,6 +1,8 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils import timezone
 
 from .validators import UsernameRegexValidator
 
@@ -61,10 +63,6 @@ class User(AbstractUser):
     def is_moderator(self):
         return self.role == 'moderator'
 
-    @property
-    def is_user(self):
-        return self.role == 'user'
-
     def __str__(self):
         return self.username
 
@@ -112,7 +110,8 @@ class Title(models.Model):
         verbose_name='Название произведения',
         max_length=256,
     )
-    year = models.PositiveIntegerField(
+    year = models.PositiveSmallIntegerField(
+        validators=[MaxValueValidator(timezone.now().year)],
         verbose_name='Год'
     )
     description = models.TextField(
@@ -226,4 +225,4 @@ class Comment(models.Model):
         verbose_name_plural = 'Комментарии'
 
     def __str__(self):
-        return self.text
+        return self.text[:settings.NUMBER_OF_CHARACTERS]

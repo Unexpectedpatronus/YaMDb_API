@@ -116,3 +116,5 @@ SIMPLE_JWT = {
 AUTH_USER_MODEL = 'reviews.User'
 
 ADMIN_EMAIL = 'Admin@yamdb.ru'
+
+NUMBER_OF_CHARACTERS = 15
