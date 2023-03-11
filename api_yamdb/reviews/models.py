@@ -4,7 +4,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 
-from .validators import UsernameRegexValidator
+from .validators import UsernameRegexValidator, year_validator
 
 
 class User(AbstractUser):
@@ -111,7 +111,7 @@ class Title(models.Model):
         max_length=256,
     )
     year = models.PositiveSmallIntegerField(
-        validators=[MaxValueValidator(timezone.now().year)],
+        validators=[year_validator],
         verbose_name='Год'
     )
     description = models.TextField(
