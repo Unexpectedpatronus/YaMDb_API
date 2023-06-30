@@ -11,4 +11,4 @@ class UsernameRegexValidator(UnicodeUsernameValidator):
 
 def year_validator(value):
     if value > datetime.now().year:
-        raise ValidationError('Год не может больше текущего')
+        raise ValidationError('Год не может быть больше текущего')
